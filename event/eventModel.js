@@ -36,6 +36,10 @@ const eventSchema=mongoose.Schema({
   booklastdate:{
     type:Number,
     required:true
+  },
+  dis:{
+          type:String,
+default:''
   }
 },{timestamps:true});
 

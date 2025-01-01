@@ -55,9 +55,7 @@ router.post('/login',async (req,res)=>{
         
         
         const token=generateToken({_id:user._id});
-        res.cookie('token',token,{
-              httpOnly: true
-        });
+        res.cookie('token',token);
         res.status(200).json({
             message:"login user succsessfull",
             user

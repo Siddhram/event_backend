@@ -2,9 +2,9 @@ const jwt=require('jsonwebtoken');
 const verifytoken=async (req,res,next)=>{
 try {
     const token=req.cookies.token;
-    // console.log(
-    //     'tok' ,token
-    // );
+    console.log(
+        'tok' ,token
+    );
     
      if (!token) {
         res.status(402).json({

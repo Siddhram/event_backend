@@ -15,22 +15,24 @@ router.post('/pay', async (req, res) => {
     try {
         const { eventId, tickets } = req.body;
          const ev=await eventModel.findById(eventId);
-         if ((ev&&ev.totalbooking<(ev.alreadybooked+tickets))) {
+         if ((ev&&ev.totalbooking<(ev.alreadybooked+Number(tickets)))) {
                         return res.status(404).json({ message: 'sorry that many tickets are not avalable' });
          }
-        const event = await eventModel.findByIdAndUpdate(eventId,{ $inc: { alreadybooked: tickets } },{new:true});
-        if (!event) {
+        if (!ev) {
             return res.status(404).json({ message: 'Event not found' });
         }
 
-        const totalAmount = tickets * event.price * 100;
+        const totalAmount = tickets * ev.price * 100;
          // Amount in paise
-                         console.log('pay ',event.price);
+         console.log("tick ",tickets);
+         
 
         const paymentIntent = await stripe.paymentIntents.create({
             amount: totalAmount,
             currency: 'inr',
         });
+                const even = await eventModel.findByIdAndUpdate(eventId,{ $inc: { alreadybooked: tickets } },{new:true});
+
 
 
         res.status(200).json({
@@ -41,6 +43,16 @@ router.post('/pay', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+router.get('/alleventbookeduser',async (req,res)=>{
+    try {
+        const data=await usereventModel.find({}).populate("userId");
+        res.status(200).json({
+            alleventbookedmember:data
+        })
+    } catch (error) {
+                res.status(500).json({ error: error.message });
+    }
+})
 
 router.post('/create-event',verifyadmintoken,async (req,res)=>{
     try {
@@ -124,11 +136,12 @@ const transporter = nodemailer.createTransport({
 router.post('/book-event-zero',verifytoken,async (req,res)=>{
     try {
         const {eventbooked,ticket,email}=req.body;
+                console.log(eventbooked,ticket,email);
+
         const userId=req.userId;
         const event=await eventModel.findOne({
             _id:eventbooked
         })
-        console.log(eventbooked,ticket,email);
         
         if(!event){
           res.status(404).json({
@@ -177,7 +190,7 @@ router.post('/book-event-zero',verifytoken,async (req,res)=>{
     // });
     const eventId=eventbooked;
   const ev=await eventModel.findById(eventId);
-         if ((ev&&ev.totalbooking<(ev.alreadybooked+ticket))) {
+         if ((ev&&ev.totalbooking<(ev.alreadybooked+Number(ticket)))) {
                         return res.status(404).json({ message: 'sorry that many tickets are not avalable' });
          }
         const even = await eventModel.findByIdAndUpdate(eventId,{ $inc: { alreadybooked: ticket } },{new:true});
@@ -185,10 +198,13 @@ router.post('/book-event-zero',verifytoken,async (req,res)=>{
             return res.status(404).json({ message: 'Event not found' });
         }
 
+
+const e=await eventModel.find({});
   
        res.status(200).json({
           alluserbookedevent:alluserevent,
            message: "Email sent successfully",
+           allevents:e,
       messageId: info.messageId,
       previewUrl: nodemailer.getTestMessageUrl(info)
        })
@@ -205,10 +221,11 @@ router.post('/book-event',verifytoken,async (req,res)=>{
     try {
         const {eventbooked,ticket,email}=req.body;
         const userId=req.userId;
+                console.log(eventbooked,ticket,email);
+
         const event=await eventModel.findOne({
             _id:eventbooked
         })
-        console.log(eventbooked,ticket,email);
         
         if(!event){
           res.status(404).json({
@@ -216,12 +233,7 @@ router.post('/book-event',verifytoken,async (req,res)=>{
           });
           return;
         }
-        if (ticket<0||ticket>(event.totalbooking-event.alreadybooked)) {
-              res.status(404).json({
-               message:'something went wrong '
-          });
-          return;
-        }
+        //  
         // console.log(event.price*ticket);
         //payment
         
@@ -255,9 +267,11 @@ router.post('/book-event',verifytoken,async (req,res)=>{
     //   messageId: info.messageId,
     //   previewUrl: nodemailer.getTestMessageUrl(info) // provides a link to preview the email
     // });
-  
+  const e=await eventModel.find({});
+
        res.status(200).json({
           alluserbookedevent:alluserevent,
+          allevents:e,
            message: "Email sent successfully",
       messageId: info.messageId,
       previewUrl: nodemailer.getTestMessageUrl(info)
@@ -268,7 +282,20 @@ router.post('/book-event',verifytoken,async (req,res)=>{
         })
     }
 })
+router.get('/event-booked-user',async (req,res)=>{
+    try {
+        // const {eventId}=req.body;
+        const Alluser=await usereventModel.find({}).populate("userId");
 
+        res.status(200).json({
+            allUserBooked:Alluser
+        })
+    } catch (error) {
+        res.status(500).json({
+            error:error
+        }) 
+    }
+})
 router.get('/getallevents',async (req,res)=>{
     try {
         const allevents=await eventModel.find({});
@@ -303,6 +330,20 @@ router.get('/user-updated-events',verifytoken,async (req,res)=>{
         res.status(500).json({
             error:error
         }) 
+    }
+})
+router.post('/finduseranddeletebookedticket/:id',async (req,res)=>{
+    try {
+        const {id}=req.params;
+        const data=await usereventModel.findByIdAndDelete(id);
+        const alleventbookedmember=await usereventModel.find({});
+        res.status(200).json({
+            alleventbookedmember:alleventbookedmember
+        })
+    } catch (error) {
+        res.status(500).json({
+            error:error
+        })
     }
 })
 router.get('/update-time',verifytoken,async (req,res)=>{
@@ -365,7 +406,7 @@ router.put('/update-event/:id',async (req,res)=>{
         }) 
     }
 });
-router.delete('/delete-event/:id',async (req,res)=>{
+router.delete('/delete-event/:id',verifyadmintoken,async (req,res)=>{
     try {
         const {id}=req.params;
         const data=await eventModel.findByIdAndDelete(id);

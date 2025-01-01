@@ -59,7 +59,8 @@ router.post('/login',async (req,res)=>{
         
         res.cookie('admintoken',token)
         res.status(200).json({
-            message:"admin login succsessfull"
+            message:"admin login succsessfull",
+            adminuser
         })
     } catch (error) {
         res.status(500).json({

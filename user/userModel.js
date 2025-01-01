@@ -16,7 +16,11 @@ password:{
 },
 contactNo:{
     type:String,
-}
+},
+dis:{
+          type:String,
+default:''
+  }
 },{timestamps:true});
 
 userSchema.pre('save',async function(next){
