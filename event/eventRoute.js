@@ -133,9 +133,76 @@ const transporter = nodemailer.createTransport({
 //     });
 //   }
 // });
+router.post('/admin/mail',verifyadmintoken,async (req,res)=>{
+    try {
+        const { userId, eventbooked } = req.body;
+
+const evenb = await usereventModel
+  .findOne({ userId, eventbooked })
+  .populate("userId eventbooked");
+
+if (!evenb) {
+  return res.status(404).json({ error: "User event not found" });
+}
+
+const username = evenb.userId.username;
+const eventname = evenb.eventbooked.eventname;
+const eventplace = evenb.eventbooked.eventplace;
+const tickets = evenb.ticket;
+const adharcardno = evenb.adharcardno;
+const to = "siddharamsutar23@gmail.com";
+
+const subject = "🎟️ Ticket Verification - Event Accepted!";
+const html = `
+  <div style="font-family: Arial, sans-serif; border: 1px solid #ddd; padding: 20px; max-width: 600px; margin: auto; background-color: #f9f9f9;">
+    <h1 style="color: #4CAF50; text-align: center;">Your Tickets Are Verified ✅</h1>
+    <p style="font-size: 16px;">Hello <strong>${username}</strong>,</p>
+    <p style="font-size: 16px;">We are excited to inform you that your tickets for the event have been successfully verified and accepted. Here are the details:</p>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><strong>Event Name</strong></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">${eventname}</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><strong>Event Place</strong></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">${eventplace}</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><strong>Tickets</strong></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">${tickets}</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><strong>Aadhar Card Number</strong></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">${adharcardno}</td>
+      </tr>
+    </table>
+    <p style="font-size: 16px; text-align: center; margin-top: 20px;">
+      Thank you for booking with us. Please enjoy your event at <strong>${eventplace}</strong>! 🎉
+    </p>
+    <p style="text-align: center; color: #888;">&copy; 2025 Event Booking System</p>
+  </div>
+`;
+
+const info = await transporter.sendMail({
+  from: '"Event Booking Admin 👻" <eventBookingteam@gmail.com>',
+  to,
+  subject,
+  html,
+});
+        res.status(200).json({
+            message:"vefified tickets",
+            name:username
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            error:error
+        })
+    }
+})
 router.post('/book-event-zero',verifytoken,async (req,res)=>{
     try {
-        const {eventbooked,ticket,email}=req.body;
+        const {eventbooked,ticket,email,adharcardno}=req.body;
                 console.log(eventbooked,ticket,email);
 
         const userId=req.userId;
@@ -169,19 +236,40 @@ router.post('/book-event-zero',verifytoken,async (req,res)=>{
   if (!to) {
     return res.status(400).json({ error: "Recipient email (to) is required" });
   }
-  const subject = "Congratulations! Tickets Booked Successfully";
-    const text = `Congratulations! You have successfully booked ${ticketCount} ticket(s). Thank you for booking with us.`;
-    const html = `<h1>Congratulations!</h1><p>You have successfully booked <strong>${ticketCount}</strong> ticket(s).</p><p>Thank you for booking with us!</p>`;
+  const currentDateTime = new Date().toLocaleString(); // Get the current date and time
 
-    // Send mail with the transporter
-    const info = await transporter.sendMail({
-      from: '"Maddison Foo Koch 👻" <siddharamsutar23@gmail.com>', // sender address
-      to, // recipient(s)
-      subject: subject || "No Subject", // default subject if none provided
-      text: text || "No text body provided", // default text if none provided
-      html: html || "<b>No HTML body provided</b>", // default html if none provided
-    });
+const subject = "🎟️ Ticket Booking Confirmation!";
+const html = `
+  <div style="font-family: Arial, sans-serif; border: 1px solid #ddd; padding: 20px; max-width: 600px; margin: auto; background-color: #f9f9f9;">
+    <h1 style="color: #4CAF50; text-align: center;">Ticket Booking Confirmation</h1>
+    <p style="font-size: 16px;">Hello,</p>
+    <p style="font-size: 16px;">You have successfully booked <strong>${ticketCount}</strong> ticket(s) for the event.</p>
+    <p style="font-size: 16px;">Here are your booking details:</p>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><strong>Date & Time</strong></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">${currentDateTime}</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><strong>Aadhar Card Number</strong></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">${adharcardno}</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><strong>Email</strong></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">${to}</td>
+      </tr>
+    </table>
+    <p style="font-size: 16px; text-align: center; margin-top: 20px;">Thank you for booking with us! We look forward to seeing you at the event.  Event is on date ${event.booklastdate+1}/${new Date().getMonth()+1}/${new Date().getFullYear()}</p>
+    <p style="text-align: center; color: #888;">&copy; 2025 Event Booking System</p>
+  </div>
+`;
 
+const info = await transporter.sendMail({
+  from: '"Event Booking 👻" <eventBookingteam@gmail.com>',
+  to,
+  subject,
+  html,
+});
     // Send response with the email info
     // res.status(200).json({
     //   message: "Email sent successfully",
@@ -219,9 +307,9 @@ const e=await eventModel.find({});
 
 router.post('/book-event',verifytoken,async (req,res)=>{
     try {
-        const {eventbooked,ticket,email}=req.body;
+        const {eventbooked,ticket,email,adharcardno}=req.body;
         const userId=req.userId;
-                console.log(eventbooked,ticket,email);
+                console.log(eventbooked,ticket,email,adharcardno);
 
         const event=await eventModel.findOne({
             _id:eventbooked
@@ -241,25 +329,47 @@ router.post('/book-event',verifytoken,async (req,res)=>{
         const userevent=new usereventModel({...req.body,userId:userId});
         await userevent.save();
         const alluserevent=await usereventModel.find({});
+const ticketCount = ticket;
+const to = email;
 
-           const ticketCount=ticket
-   const to=email;
   // Check if the `to` field is provided
   if (!to) {
     return res.status(400).json({ error: "Recipient email (to) is required" });
   }
-  const subject = "Congratulations! Tickets Booked Successfully";
-    const text = `Congratulations! You have successfully booked ${ticketCount} ticket(s). Thank you for booking with us.`;
-    const html = `<h1>Congratulations!</h1><p>You have successfully booked <strong>${ticketCount}</strong> ticket(s).</p><p>Thank you for booking with us!</p>`;
+ const currentDateTime = new Date().toLocaleString(); // Get the current date and time
 
-    // Send mail with the transporter
-    const info = await transporter.sendMail({
-      from: '"Maddison Foo Koch 👻" <siddharamsutar23@gmail.com>', // sender address
-      to, // recipient(s)
-      subject: subject || "No Subject", // default subject if none provided
-      text: text || "No text body provided", // default text if none provided
-      html: html || "<b>No HTML body provided</b>", // default html if none provided
-    });
+const subject = "🎟️ Ticket Booking Confirmation!";
+const html = `
+  <div style="font-family: Arial, sans-serif; border: 1px solid #ddd; padding: 20px; max-width: 600px; margin: auto; background-color: #f9f9f9;">
+    <h1 style="color: #4CAF50; text-align: center;">Ticket Booking Confirmation</h1>
+    <p style="font-size: 16px;">Hello,</p>
+    <p style="font-size: 16px;">You have successfully booked <strong>${ticketCount}</strong> ticket(s) for the event.</p>
+    <p style="font-size: 16px;">Here are your booking details:</p>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><strong>Date & Time</strong></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">${currentDateTime}</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><strong>Aadhar Card Number</strong></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">${adharcardno}</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><strong>Email</strong></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">${to}</td>
+      </tr>
+    </table>
+    <p style="font-size: 16px; text-align: center; margin-top: 20px;">Thank you for booking with us! We look forward to seeing you at the event. Event is on date ${event.booklastdate+1}/${new Date().getMonth()+1}/${new Date().getFullYear()}</p>
+    <p style="text-align: center; color: #888;">&copy; 2025 Event Booking System</p>
+  </div>
+`;
+
+const info = await transporter.sendMail({
+  from: '"Event Booking 👻" <eventBookingteam@gmail.com>',
+  to,
+  subject,
+  html,
+});
 
     // Send response with the email info
     // res.status(200).json({

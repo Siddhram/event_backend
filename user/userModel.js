@@ -20,7 +20,7 @@ contactNo:{
 dis:{
           type:String,
 default:''
-  }
+  },
 },{timestamps:true});
 
 userSchema.pre('save',async function(next){

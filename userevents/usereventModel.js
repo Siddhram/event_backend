@@ -11,7 +11,11 @@ const usereventSchema=mongoose.Schema({
    ticket:{
     type:Number,
     default:0 
-   }
+   },
+   adharcardno:{
+          type:Number,
+default:0
+  }
 },{timestamps:true});
 
 const usereventModel=mongoose.model('userevent',usereventSchema);
