@@ -18,7 +18,7 @@ console.log('mongodb disconnected');
 //middleware
 app.use(cors(
     {
-    origin: 'http://localhost:5173', // Frontend URL
+    origin:  ['http://localhost:5173', 'https://eventbook-ten.vercel.app'], // Frontend URL
     credentials: true, // Allow cookies to be sent
 }
 ))
