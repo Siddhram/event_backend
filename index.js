@@ -4,6 +4,7 @@ const mongoose=require('mongoose');
 const userRouter=require('./user/userRoutes');
 const adminRouter=require('./admin/adminRoute');
 const eventRouter=require('./event/eventRoute');
+const messageRouter=require('./adminmessage/messageeoutes');
 const cookieparser=require('cookie-parser');
 const cors=require('cors');
 const app=express();
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use('/user',userRouter);
 app.use('/admin',adminRouter);
 app.use('/event',eventRouter);
+app.use('/message',messageRouter);
 
 //routes
 app.listen(process.env.PORT,()=>{

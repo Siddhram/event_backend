@@ -184,7 +184,7 @@ const html = `
 `;
 
 const info = await transporter.sendMail({
-  from: '"Event Booking Admin 👻" <eventBookingteam@gmail.com>',
+  from: '"Event Booking Admin 👻" <siddharamsutar23@gmail.com>',
   to,
   subject,
   html,
@@ -265,7 +265,7 @@ const html = `
 `;
 
 const info = await transporter.sendMail({
-  from: '"Event Booking 👻" <eventBookingteam@gmail.com>',
+  from: '"Event Booking 👻" <siddharamsutar23@gmail.com>',
   to,
   subject,
   html,
@@ -365,7 +365,7 @@ const html = `
 `;
 
 const info = await transporter.sendMail({
-  from: '"Event Booking 👻" <eventBookingteam@gmail.com>',
+  from: '"Event Booking 👻" <siddharamsutar23@gmail.com>',
   to,
   subject,
   html,

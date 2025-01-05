@@ -17,10 +17,31 @@ password:{
 contactNo:{
     type:String,
 },
+fullname:{
+   type:String,
+default:''
+},
+state:{
+ type:String,
+default:''
+},
+image:{
+ type:String,
+default:''
+},
+address:{
+ type:String,
+default:''
+},
+city:{
+    type:String,
+default:''
+},
 dis:{
           type:String,
 default:''
   },
+
 },{timestamps:true});
 
 userSchema.pre('save',async function(next){
