@@ -136,7 +136,8 @@ const transporter = nodemailer.createTransport({
 router.post('/admin/mail',verifyadmintoken,async (req,res)=>{
     try {
         const { userId, eventbooked } = req.body;
-
+   console.log(userId,eventbooked);
+   
 const evenb = await usereventModel
   .findOne({ userId, eventbooked })
   .populate("userId eventbooked");

@@ -5,6 +5,7 @@ const router=express.Router();
 
 router.post('/',async (req,res)=>{
     try {
+      
         const data=new issueModel({...req.body});
         await data.save();
         res.status(200).json({

@@ -57,12 +57,13 @@ router.post('/login',async (req,res)=>{
         
         
         const token=generateToken({_id:user._id});
-        res.cookie('token',token,{
-              httpOnly: true,   // Makes the cookie accessible only via HTTP requests
-    secure: true,     // Ensures cookie is sent over HTTPS
-    sameSite: 'None', // Allows cross-site cookies
-        });
+    //     res.cookie('token',token,{
+    //           httpOnly: true,   // Makes the cookie accessible only via HTTP requests
+    // secure: true,     // Ensures cookie is sent over HTTPS
+    // sameSite: 'None', // Allows cross-site cookies
+    //     });
         res.status(200).json({
+            token,
             message:"login user succsessfull",
             user
         })

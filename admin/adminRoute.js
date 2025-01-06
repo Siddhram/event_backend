@@ -57,12 +57,13 @@ router.post('/login',async (req,res)=>{
         const token=await generateadminToken({_id:adminuser._id});
         console.log(token);
         
-        res.cookie('admintoken',token,{
-              httpOnly: true,   // Makes the cookie accessible only via HTTP requests
-    secure: true,     // Ensures cookie is sent over HTTPS
-    sameSite: 'None', // Allows cross-site cookies
-        })
+    //     res.cookie('admintoken',token,{
+    //           httpOnly: true,   // Makes the cookie accessible only via HTTP requests
+    // secure: true,     // Ensures cookie is sent over HTTPS
+    // sameSite: 'None', // Allows cross-site cookies
+    //     })
         res.status(200).json({
+            admintoken:token,
             message:"admin login succsessfull",
             adminuser
         })

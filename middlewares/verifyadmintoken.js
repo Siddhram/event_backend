@@ -3,7 +3,7 @@ const cookie_parser=require('cookie-parser');
 const verifyadmintoken=async (req,res,next)=>{
     try {
 
-        const admintok=req.cookies.admintoken;
+        const admintok=req.headers.authorization;
         
         if (!admintok) {
             res.status(402).json({
